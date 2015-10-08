@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Express HTML</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+<script type="text/javascript">
+$(document).ready(function() {
+          function statusAjaxCheck(){
+            $.ajax({
+            beforeSend: function(){
+            $('body').css('cursor', 'wait');
+            },
+            dataType: 'json',
+            type: "POST",
+            url: "/getstatus",
+            data: {id: $('#transaction_id').val()},
+            success: function(data,status,xhr){
+                var log = "<br/>machine name="+data.logs.MachineName+"<br/> Hostname="+data.logs.HostName+"<br/>Total memory storage in GB: "+data.logs.VMTotalStorageGB+"<br/> Provision completed <br/> <li> 2)IS REACHABLE <br/> Check the instance in TCP SSH enabled or not <br/> SSH check ok<br/> <li>3)Install Chef Docker <br/> Successfully installed chef docker<br/> <li> 4) Docker Init <br/> Docker initialized successfully."
+                //alert(JSON.stringify(data.logs.MachineName));
+                //$('li#logdetails').replaceWith(JSON.stringify(data.logs));
+                console.log(JSON.stringify(data));
+                if(data.status == "success" || data.status == "completed"){
+                  clearInterval(interval);
+                  $('.deployment_steps').find('li').each(function(){
+                     $(this).addClass('active');
+                     $('.log').hide();
+                    //$('.log').css({width : "+=200" , height : "19px"});
+                     $(this).find('span:first').css("background-color","greenyellow");
+                        })
+            
+                $('li#logdetails').append(log);
+                }else if(data.status == "failed"){
+                 
+                 $('#' + data.stage.toString() + ' span:first').css("background-color","red");
+                 clearInterval(interval);
+                } 
+               // if(!$('#' + data.stage.toString()).hasClass("active")){
+                  //$('#' + data.stage.toString()).addClass("active");
+                //  $('.log').css({width : "+=150" , height : "19px"});
+                 // step = parseInt(data.stage) - 1;
+                  //$('#' + step.toString() + ' span:first').css("background-color","greenyellow");
+                //}
+               // for(i = 1; i < parseInt(data.stage); i++){ 
+                 for(i = 1; i < parseInt(data.stage); i++){
+                  $('#' + i.toString()).addClass('active');
+                  $('#' + i.toString() + ' span:first').css("background-color","greenyellow");
+                }
+            },
+            complete: function(){
+                $('body').css('cursor', 'default');
+            },
+            error: function(data){
+                alert("error" + data);
+            }
+          });
+        }
+        var interval =   setInterval(function() {
+         statusAjaxCheck();
+        }, 10000);
+      });
+</script>
+</head>
+<body>
+<div class="row">
+<input id="transaction_id" name="transaction_id" type="hidden" value=<%= JSON.stringify(details._id) %> />
+<div id="fuelux-wizard" class="wizard row deployment_steps">
+<ul class="wizard-steps">
+<li id="1" class="deployment" style="min-width:25%;" data-target="#step1">
+<span class="step">1</span>
+<span class="title">Provision </span>
+</li>
+<li id="2" class="deployment" style="min-width:25%;" data-target="#step2">
+<span class="step">2</span>
+<span class="title">IS_REACHABLE </span>
+</li>
+<li id="3" class="deployment" style="min-width:25%;" data-target="#step3">
+<span class="step">3</span>
+<span class="title">INSTALL_CHEF_DOCKER</span>
+</li>
+<li id="4" class="deployment" style="min-width:25%;" data-target="#step4">
+<span class="step">4</span>
+<span class="title">DOCKER_INIT </span>
+</li>
+</ul>
+</div>
+<div style="clear:both; height:10px;"></div>
+</div>
+<div>
+<img class="log" style="width: 230px; height: 19px;margin:30px 0pt 20px 120px;" src="../../images/ajax-loader.gif">
+</div>
+  <div style="margin:100px;">
+    <h1><%= servicename+ '-'+serviceversion %></h1>
+    <div class="jumbotron"  style="padding:40px;">
+     <h3>Job in queue:</h3>
+     <ul>
+         <li id="logdetails"><%#= JSON.stringify(details) %>
+         1) Provisioning has started
+      </li>
+    
+    </ul>
+    </div>
+  </div>
+</body>
+</html>

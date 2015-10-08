@@ -1,0 +1,112 @@
+<!doctype html>
+<html ng-app="myApp">
+
+
+	<head>
+		<title>Hello AngularJS</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.0/ui-bootstrap-tpls.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+
+	<body>
+      
+
+ <div class="container-fluid" ng-controller="NodeProvision">
+    <h1>Demo</h1>
+
+      <div class="row-fluid">
+     <div class="span8 offset2">
+    <form name="ProvisionForm" novalidate class="css-form" novalidate>
+    <input type="hidden" ng-model="provision.CPU" ng-init="provision.CPU=2"/>
+    <input type="hidden" ng-model="provision.memory" ng-init="provision.memory=4000"/>
+    <input type="hidden" ng-model="provision.diskSizeGb" ng-init="provision.diskSizeGb=30"/>
+    <input type="hidden" ng-model="provision.src" ng-init="provision.src=ui"/>
+    <fieldset>
+    <legend>Provision</legend>
+    <label>Service name</label>
+    <select class="form-control" ng-model="provision.ServiceName" name="servicename" required>
+    <option value="">-- choose service name --</option>
+    <option value="blti_provider">blti_provider</option>
+    <option value="blti_v3">blti_v3</option>
+    <option value="syllabus_author">syllabus_author</option>
+    <option value="syllabus_reader">syllabus_reader</option>
+    </select>
+    <br />
+    <div ng-show="ProvisionForm.$submitted || ProvisionForm.servicename.$touched">
+      <div ng-show="ProvisionForm.servicename.$error.required && ProvisionForm.submitted">Service name is required.</div>
+    </div>
+    <label>Service Version</label>
+    <select class="form-control" ng-model="provision.ServiceVersion" required>
+    <option value="">-- choose service version --</option>
+    <option value="3.1">3.1</option>
+    <option value="3.2">3.2</option>
+    </select><br/>
+    <label>Action List</label>
+    <select class="form-control" ng-model="provision.action_list" ng-init="provision.action_list='NODE_PROVISION,IS_REACHABLE,INSTALL_CHEF_DOCKER,DOCKER_INIT'">
+    <option value="NODE_PROVISION,IS_REACHABLE,INSTALL_CHEF_DOCKER,DOCKER_INIT">PROVISION,IS_REACHABLE,INSTALL_CHEF_DOCKER,DOCKER_INIT</option>    
+    </select><br/>
+    <label>Count</label>
+    <select class="form-control" ng-model="provision.Count" ng-init="provision.Count=1">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    </select><br/>
+    <div style="float:left">
+    <button type="submit" class="btn" ng-click="open(provision)">Submit</button>
+    </div>
+    <div >
+    <div ng-show="loading" style="float:left;"><img src="http://www.nasa.gov/multimedia/videogallery/ajax-loader.gif" width="20" height="20" />LOADING...</div>
+    <div class="clear:both;"></div>
+    </fieldset>
+
+    </form>
+    </div>
+     </div>
+      </div>
+    	</body>
+
+	<style type="text/css">
+    .loading { border:1px solid #ddd; padding:20px; margin:40px 5px; width:80px;}
+	</style>
+
+
+
+	<script>
+ 	//Initializing the app
+  	var app = angular.module('myApp',['ui.bootstrap']);
+    app.controller('NodeProvision', function ($scope,$http,$window) {
+       $scope.loading = false; 
+    	$scope.open = function(value)
+    	{
+    		
+       if ($scope.ProvisionForm.$valid) {
+    		$scope.loading = true;  		
+                $http.post('http://ac-00075763.devapollogrp.edu:8080/NodeProvision/provision/urn:apol:provider:acpqueue',{
+ "bluePrintId": "6478b7b9-977a-44bc-90e4-1dca492b4986","memoryMb": "4000","cpuCount": "2","groupId": "3958b206-ed06-4fa4-a278-2fc5687be563","diskSizeGb": "30","props": "","serviceName": value.ServiceName.toString(),"serviceVersion": value.ServiceVersion.toString(),"src": "rest",
+ "actionList": value.action_list.toString()
+}).then(function(data, status, headers, config)
+             	{
+                    console.log(data)
+             		//alert(JSON.stringify(data.data.message));
+                        var transaction_id = (data.data.message).split(':')[1];
+                        var message = (data.data.message).split(';')[0];
+                        alert(message);
+             		$scope.loading = false ;
+                        //$location.url('/sitemap');
+                        $window.location.href = '/sitemap?transaction_id='+ transaction_id +'&servicename='+ value.ServiceName.toString()+ '&serviceversion='+ value.ServiceVersion.toString();
+                //return results;
+       }); 
+    }
+else{
+$scope.ProvisionForm.submitted = true;
+};
+}
+});
+
+</script>
+</html>

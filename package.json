@@ -1,0 +1,10 @@
+{
+  "name": "express-html",
+  "version": "0.0.1",
+  "dependencies": {
+    "body-parser": "~1.13.2",
+    "express": "^4.11.0",
+    "mongoose": "~4.0.6",
+    "request-ip": "^1.1.4"
+  }
+}
