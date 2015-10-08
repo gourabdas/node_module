@@ -4,7 +4,8 @@ REQUIREMENT:
    3. Store the newly created machine details in Mongodb.
    4. Check on each interval, whether the complete processs is finished or in progress connecting remote database from 
    this application.Also store the detail in local MongoDb database.
-   
-   TECHNOLOGY:
-     Nodejs,AngularJs,MongoDB,JQuery,bootstrap css
+
+TECHNOLOGY:
+
+   Nodejs,AngularJs,MongoDB,JQuery,bootstrap css
      
